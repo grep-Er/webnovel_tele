@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Chunker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .chunk {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .chunk:hover {
+            background-color: #ddd;
+        }
+        .chunk-copied {
+            background-color: #afa;
+        }
+    </style>
+</head>
+<body>
+    <h1>Text Chunker</h1>
+    <textarea id="text-input" rows="10" cols="50" placeholder="Enter text here..."></textarea>
+    <button id="send-button">Send</button>
+    <div id="chunks-container"></div>
+
+    <script>
+        const textInput = document.getElementById('text-input');
+        const sendButton = document.getElementById('send-button');
+        const chunksContainer = document.getElementById('chunks-container');
+
+        sendButton.addEventListener('click', () => {
+            const text = textInput.value;
+            const chunks = [];
+            let start = 0;
+            while (start < text.length) {
+                let end = start + 1000;
+                if (end > text.length) {
+                    end = text.length;
+                }
+
+                // Find the last full stop before or at end
+                let lastDotIndex = text.substring(start, end).lastIndexOf('.');
+                if (lastDotIndex !== -1) {
+                    // Adjust end to be after the last full stop
+                    end = start + lastDotIndex + 1;
+                }
+
+                let chunk = text.substring(start, end);
+                chunks.push(chunk);
+                start = end;
+            }
+
+            chunksContainer.innerHTML = '';
+            chunks.forEach((chunk) => {
+                const chunkDiv = document.createElement('div');
+                chunkDiv.classList.add('chunk');
+                chunkDiv.textContent = chunk;
+                chunkDiv.addEventListener('click', () => {
+                    navigator.clipboard.writeText(chunk).then(() => {
+                        chunkDiv.classList.add('chunk-copied');
+                    }).catch(err => {
+                        console.error('Could not copy text: ', err);
+                    });
+                });
+                chunksContainer.appendChild(chunkDiv);
+            });
+        });
+    </script>
+</body>
+</html>
